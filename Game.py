@@ -9,8 +9,12 @@ canvas = Canvas(window,width=400,height=400)
 canvas.pack()
 canvas.configure(bg="green")
 
-window.title("Simple pig game")
+window.title("Simple pig game | Level 1")
 score = -1
+toScore = 20
+level = 1
+win = False
+
 class Mushroom():
     x = 0
     y = 0
@@ -78,6 +82,40 @@ class SnakeFood():
         self.y = randint(0+self.width+50,400-self.height-50)
         self.draw(c)
 
+class Wolf():
+    x = 0
+    y = 0
+    width = 75
+    height = 56
+    direction = 0 # 0 - right | 1 - left
+    image = 0
+    imageR = 0
+    window = 0
+    func = 0
+    def move(self):
+        if(self.direction == 0):
+            if(self.x != 360):
+                self.x += wolfSpeed
+            else:
+                self.direction = 1
+        elif(self.direction == 1):
+            if(self.x != 60):
+                self.x -= wolfSpeed
+            else:
+                self.direction = 0
+        update()
+        self.window.after(5,self.move)
+    def __init__(self,x,y,w):
+        self.image = PhotoImage(file=os.getcwd()+"\\wolf.png")
+        self.imageR = PhotoImage(file=os.getcwd()+"\\wolfR.png")
+        self.x = x
+        self.y = y
+        self.window = w
+    def draw(self,c):
+        if self.direction == 0:
+            c.create_image(self.x,self.y,image=self.imageR)
+        else:
+            c.create_image(self.x,self.y,image=self.image)
 
 s = CubeSnake()
 a = SnakeFood()
@@ -103,26 +141,40 @@ t23 = Tree2(randint(60,400-18),randint(100,400-26))
 t24 = Tree2(randint(60,400-18),randint(100,400-26))
 t25 = Tree2(randint(60,400-18),randint(100,400-26))
 
+# Wolfs
+# X RANGE 60-360
+w1 = Wolf(60,120,window)
+w2 = Wolf(360,280,window)
+w2.direction = 1
+
 def update():
-    canvas.delete("all")
-    canvas.create_text(40,20,text="Score: " + str(score),fill="yellow",font=('Arial',12))
-    m1.draw(canvas)
-    m2.draw(canvas)
-    m3.draw(canvas)
-    m4.draw(canvas)
-    m5.draw(canvas)
-    a.draw(canvas)
-    s.draw(canvas)
-    t1.draw(canvas)
-    t2.draw(canvas)
-    t3.draw(canvas)
-    t4.draw(canvas)
-    t5.draw(canvas)
-    t21.draw(canvas)
-    t22.draw(canvas)
-    t23.draw(canvas)
-    t24.draw(canvas)
-    t25.draw(canvas)
+    if win == False:
+        canvas.delete("all")
+        canvas.create_text(95,20,text="Score: " + str(score) + " | You need: " + str(toScore),fill="yellow",font=('Arial',12))
+        if level == 1:
+            m1.draw(canvas)
+            m2.draw(canvas)
+            m3.draw(canvas)
+            m4.draw(canvas)
+            m5.draw(canvas)
+        if level == 2:
+            w1.draw(canvas)
+            w2.draw(canvas)
+        a.draw(canvas)
+        s.draw(canvas)
+        t1.draw(canvas)
+        t2.draw(canvas)
+        t3.draw(canvas)
+        t4.draw(canvas)
+        t5.draw(canvas)
+        t21.draw(canvas)
+        t22.draw(canvas)
+        t23.draw(canvas)
+        t24.draw(canvas)
+        t25.draw(canvas)
+    else:
+        canvas.delete("all")
+        canvas.create_text(190,200,text="You win!",font=("Lucida Console",40))
 
 def forward(event):
     if(s.y != 18):
@@ -167,21 +219,46 @@ def checkMushrooms():
             break
     return returner
 
+def checkWolfs():
+    cw1 = OverlapChecker.isRectangleOverlap([s.x,s.y,s.x+30,s.y+30],[w1.x,w1.y,w1.x+w1.width,w1.y+w1.height])
+    cw2 = OverlapChecker.isRectangleOverlap([s.x,s.y,s.x+30,s.y+30],[w2.x,w2.y,w2.x+w2.width,w2.y+w2.height])
+    cws = {cw1,cw2}
+    returner = False
+    for cw in cws:
+        if(cw == True):
+            returner = True
+            break
+    return returner
+
 def checkCollision():
     check = OverlapChecker.isRectangleOverlap([s.x,s.y,s.x+30,s.y+30],[a.x,a.y,a.x+15,a.y+15])
     mCheck = checkMushrooms()
+    wCheck = checkWolfs()
     if check == True:
         global score
+        global toScore
+        global level
+        global win
         score = score + 1
         a.reGen(canvas)
         canvas.create_rectangle(0,0,400,400,fill="black")
         update()
-    if mCheck == True:
+        if score >= toScore:
+            if(level == 1):
+                level = 2
+                toScore = 30
+                score = 0
+                window.after(5,w1.move)
+                w2.direction = 1
+                window.after(5,w2.move)
+                window.title("Simple pig game | Level 2")
+            elif(level == 2):
+                win = True
+                window.title("Simple pig game | You win!")
+                update()
+    if (mCheck == True and level == 1) or (wCheck == True and level == 2):
         score = 0
         a.reGen(canvas)
 
-
 checkCollision()
-
-s.draw(canvas)
 mainloop()

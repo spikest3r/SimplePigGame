@@ -31,6 +31,8 @@
     <Content Include="pig.png" />
     <Content Include="tree.png" />
     <Content Include="tree2.png" />
+    <Content Include="wolf.png" />
+    <Content Include="wolfR.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
