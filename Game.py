@@ -7,7 +7,7 @@ import os
 window = Tk()
 canvas = Canvas(window,width=400,height=400)
 canvas.pack()
-canvas.configure(bg="green")
+canvas.configure(bg="green") # Green background for canvas
 
 window.title("Simple pig game")
 score = -1
